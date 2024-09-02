@@ -1,0 +1,46 @@
+@inherits FusionComponentBase
+@inject Session Session
+@inject UICommander UICommander
+@inject ILogger<TodoItemView> Log
+
+@{
+    Log.LogInformation("Rendering, Item = {Item}", Value);
+}
+
+<Addons Margin="Margin.Is3.OnY">
+    <Addon AddonType="AddonType.Start">
+        <AddonLabel>
+            <Blazorise.Icon Name="@(Value.IsDone ? FontAwesomeIcons.CheckSquare : FontAwesomeIcons.Square)"
+                            @onclick="InvertDone" />
+        </AddonLabel>
+    </Addon>
+    <TextEdit TextChanged="@(new EventCallback<string>(null, UpdateTitle))" Text="@Value.Title" Debounce="true" />
+    <Addon AddonType="AddonType.End">
+        <Button Clicked="Remove" Color="Color.Warning">
+            <Blazorise.Icon Name="FontAwesomeIcons.Minus"/>
+        </Button>
+    </Addon>
+</Addons>
+
+@code {
+    [Parameter, ParameterComparer(typeof(ByValueParameterComparer))]
+    public Todo Value { get; set; } = null!;
+
+    private Task InvertDone()
+    {
+        var todo = Value with { IsDone = !Value.IsDone };
+        return UICommander.Run(new Todos_AddOrUpdate(Session, todo));
+    }
+
+    private Task UpdateTitle(string title)
+    {
+        title = title.Trim();
+        if (Value.Title == title)
+            return Task.CompletedTask;
+        var todo = Value with { Title = title };
+        return UICommander.Run(new Todos_AddOrUpdate(Session, todo));
+    }
+
+    private Task Remove()
+        => UICommander.Run(new Todos_Remove(Session, Value.Id));
+}

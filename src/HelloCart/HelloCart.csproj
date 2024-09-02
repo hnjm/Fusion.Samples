@@ -2,27 +2,29 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net8.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <LangVersion>preview</LangVersion>
     <AssemblyName>Samples.HelloCart</AssemblyName>
     <RootNamespace>Samples.HelloCart</RootNamespace>
   </PropertyGroup>
 
+  <!-- Fusion packages -->
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.2" />
-    <PackageReference Include="ActualLab.Fusion.EntityFramework" Version="7.0.41" />
-    <PackageReference Include="ActualLab.Fusion.EntityFramework.Redis" Version="7.0.41" />
-    <PackageReference Include="ActualLab.Fusion.Server" Version="7.0.41" />
+    <PackageReference Include="ActualLab.Fusion.EntityFramework" />
+    <PackageReference Include="ActualLab.Fusion.EntityFramework.Npgsql" />
+    <PackageReference Include="ActualLab.Fusion.EntityFramework.Redis" />
+    <PackageReference Include="ActualLab.Fusion.Server" />
   </ItemGroup>
 
-  <!-- Roslyn generators/analyzers -->
+  <!-- Other packages -->
   <ItemGroup>
-    <PackageReference Include="MemoryPack.Generator" Version="1.10.0">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="ActualLab.Generators" Version="7.0.41" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+    <PackageReference Include="Pastel" />
+  </ItemGroup>
+
+  <!-- Source generators -->
+  <ItemGroup>
+    <PackageReference Include="ActualLab.Generators" />
+    <PackageReference Include="MemoryPack.Generator" />
   </ItemGroup>
 
 </Project>

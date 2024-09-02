@@ -6,7 +6,8 @@ namespace Samples.RpcBenchmark.Server;
 
 public static class StreamGenerator
 {
-    [ThreadStatic] private static byte[]? _lastData;
+    private static readonly object Lock = new();
+    private static Dictionary<int, byte[]> _dataCache = new();
 
     public static async IAsyncEnumerable<Item> GetItems(
         GetItemsRequest request,
@@ -22,15 +23,26 @@ public static class StreamGenerator
 
             yield return new Item() {
                 Index = i,
-                Data = new byte[request.DataSize],
+                Data = GetData(request.DataSize),
             };
         }
     }
 
-    private static byte[] GetData(long dataSize)
+    public static byte[] GetData(int size)
     {
-        if (_lastData?.Length != dataSize)
-            _lastData = new byte[dataSize];
-        return _lastData;
+        if (size < 50)
+            return new byte[size];
+
+        // This approach is faster than w/ ConcurrentDictionary, if the # of items is tiny
+        if (_dataCache.TryGetValue(size, out var data))
+            return data;
+        lock (Lock) {
+            if (_dataCache.TryGetValue(size, out data))
+                return data;
+
+            data = new byte[size];
+            _dataCache = new Dictionary<int, byte[]>(_dataCache) { { size, data } };
+            return data;
+        }
     }
 }

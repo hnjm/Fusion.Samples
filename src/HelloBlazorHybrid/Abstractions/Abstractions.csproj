@@ -2,25 +2,19 @@
 
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <TargetFramework>net8.0</TargetFramework>
-    <LangVersion>preview</LangVersion>
-    <Nullable>enable</Nullable>
     <AssemblyName>Samples.HelloBlazorHybrid.Abstractions</AssemblyName>
     <RootNamespace>Samples.HelloBlazorHybrid.Abstractions</RootNamespace>
     <ServerGarbageCollection>true</ServerGarbageCollection>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ActualLab.Fusion" Version="7.0.41" />
+    <PackageReference Include="ActualLab.Fusion" />
   </ItemGroup>
 
   <!-- Roslyn generators/analyzers -->
   <ItemGroup>
-    <PackageReference Include="MemoryPack.Generator" Version="1.10.0">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="ActualLab.Generators" Version="7.0.41" />
+    <PackageReference Include="ActualLab.Generators" />
+    <PackageReference Include="MemoryPack.Generator" />
   </ItemGroup>
 
 </Project>

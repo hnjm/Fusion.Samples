@@ -1,3 +1,7 @@
+using ActualLab.Rpc;
+using ActualLab.Rpc.Infrastructure;
+using ActualLab.Rpc.Serialization;
+using ActualLab.Rpc.WebSockets;
 using Ookii.CommandLine;
 using Ookii.CommandLine.Commands;
 
@@ -11,6 +15,8 @@ public static class Program
 
     public static async Task<int> Main(string[] args)
     {
+        SizeHintProviders.Register<Item>(static x => 16 + x.Data?.Length ?? 0);
+
         TreatControlCAsInput = false;
         CancelKeyPress += (_, ea) => {
             StopTokenSource.Cancel();

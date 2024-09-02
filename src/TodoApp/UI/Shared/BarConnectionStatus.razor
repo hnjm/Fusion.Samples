@@ -1,0 +1,46 @@
+@using ActualLab.Rpc
+@inherits StatefulComponentBase<IState<RpcPeerState>>
+
+@{
+    var m = State.Value;
+    var isOk = m.Kind is not RpcPeerStateKind.Disconnected;
+    var iconName = isOk
+        ? FontAwesomeIcons.Cloud
+        : FontAwesomeIcons.ExclamationTriangle;
+    var textColor = isOk
+        ? TextColor.Default
+        : TextColor.Warning;
+}
+
+<BarItem>
+    <BarDropdown Class="@CssClass" RightAligned="true">
+        <BarDropdownToggle>
+            <BarIcon IconName="@iconName" TextColor="@textColor"></BarIcon>
+        </BarDropdownToggle>
+        <BarDropdownMenu>
+            <BarDropdownItem TextColor="@textColor">
+                <span>@m.GetDescription(true)</span>
+                @if (m.ReconnectsIn != default) {
+                    <span> Will reconnect <TimerBadge ExpiresAt="@(Clock.Now + m.ReconnectsIn)"/>. </span>
+                    <Button Color="Color.Success" Clicked="@Reconnect">Reconnect</Button>
+                }
+            </BarDropdownItem>
+        </BarDropdownMenu>
+    </BarDropdown>
+</BarItem>
+
+@code {
+    [Inject] private RpcPeerStateMonitor Monitor { get; init; } = null!;
+    [Inject] private MomentClock Clock { get; init; } = null!;
+
+    [Parameter] public string CssClass { get; set; } = "";
+
+    protected override void OnInitialized()
+        => SetState(Monitor.State);
+
+    public override ValueTask DisposeAsync()
+        => default; // State shouldn't be disposed
+
+    private void Reconnect()
+        => Services.RpcHub().InternalServices.ClientPeerReconnectDelayer.CancelDelays();
+}

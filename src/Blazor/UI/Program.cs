@@ -1,10 +1,7 @@
 using Blazorise;
-using Blazorise.Bootstrap;
-using Blazorise.Icons.FontAwesome;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Samples.Blazor.Abstractions;
 using Samples.Blazor.UI.Services;
-using ActualLab.Fusion.Client;
 using ActualLab.OS;
 using ActualLab.DependencyInjection;
 using ActualLab.Fusion.Authentication;
@@ -13,6 +10,11 @@ using ActualLab.Fusion.Blazor.Authentication;
 using ActualLab.Fusion.Extensions;
 using ActualLab.Fusion.UI;
 using ActualLab.Rpc;
+using ActualLab.Rpc.Infrastructure;
+using ActualLab.Rpc.Serialization;
+using ActualLab.Rpc.WebSockets;
+using Blazorise.Bootstrap5;
+using Blazorise.Icons.FontAwesome;
 
 namespace Samples.Blazor.UI;
 
@@ -60,8 +62,24 @@ public class Program
 
     public static void ConfigureSharedServices(IServiceCollection services)
     {
+        // Configure RPC
+        RpcDefaultDelegates.WebSocketChannelOptionsProvider =
+            (_, _) => WebSocketChannel<RpcMessage>.Options.Default with {
+                // The fastest serializer
+                Serializer = new FastRpcMessageByteSerializer(MemoryPackByteSerializer.Default),
+                // Default frame delayer increases invalidate-to-update delays, and since this sample
+                // contains nearly real-time part (streaming & RPC streaming), we remove any delays
+                // to show peak performance here.
+                FrameDelayerFactory = null,
+            };
+
         // Blazorise
-        services.AddBlazorise().AddBootstrapProviders().AddFontAwesomeIcons();
+        services.AddBlazorise(options => {
+                options.Immediate = true;
+                options.Debounce = true;
+            })
+            .AddBootstrap5Providers()
+            .AddFontAwesomeIcons();
 
         // Fusion services
         var fusion = services.AddFusion();

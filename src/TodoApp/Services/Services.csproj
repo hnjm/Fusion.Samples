@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Samples.TodoApp.Services</RootNamespace>
+    <AssemblyName>Samples.TodoApp.Services</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Abstractions\Abstractions.csproj" />
+  </ItemGroup>
+
+  <!-- Fusion packages -->
+  <ItemGroup>
+    <PackageReference Include="ActualLab.Fusion" />
+    <PackageReference Include="ActualLab.Fusion.Server" />
+    <PackageReference Include="ActualLab.Fusion.Ext.Services" />
+  </ItemGroup>
+
+  <!-- Source generators -->
+  <ItemGroup>
+    <PackageReference Include="ActualLab.Generators" />
+    <PackageReference Include="MemoryPack.Generator" />
+  </ItemGroup>
+
+</Project>

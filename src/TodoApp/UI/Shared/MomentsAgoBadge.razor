@@ -1,0 +1,16 @@
+@inherits ComputedRenderStateComponent<string>
+@inject IFusionTime FusionTime
+
+<span class="@CssClass">@State.Value</span>
+
+@code {
+    [Parameter]
+    public string CssClass { get; set; } = "";
+    [Parameter]
+    public DateTime? Value { get; set; }
+    [Parameter]
+    public string None { get; set; } = "n/a";
+
+    protected override Task<string> ComputeState(CancellationToken cancellationToken)
+        => Value.HasValue ? FusionTime.GetMomentsAgo(Value.Value) : Task.FromResult(None);
+}
