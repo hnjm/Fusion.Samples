@@ -3,8 +3,18 @@
   <PropertyGroup>
     <AssemblyName>Samples.HelloBlazorHybrid.Server</AssemblyName>
     <RootNamespace>Samples.HelloBlazorHybrid.Server</RootNamespace>
-    <ServerGarbageCollection>true</ServerGarbageCollection>
   </PropertyGroup>
+
+  <!-- Runtime properties -->
+  <PropertyGroup>
+    <ServerGarbageCollection>true</ServerGarbageCollection>
+    <InvariantGlobalization>true</InvariantGlobalization>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\UI\UI.csproj" />
+    <ProjectReference Include="..\Services\Services.csproj" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="AspNet.Security.OAuth.GitHub" />
@@ -15,16 +25,10 @@
     <PackageReference Include="ActualLab.Fusion.Server" />
   </ItemGroup>
 
+  <!-- Roslyn generators/analyzers -->
   <ItemGroup>
-    <ProjectReference Include="..\UI\UI.csproj" />
-    <ProjectReference Include="..\Services\Services.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Update="Pages\_Host.cshtml">
-      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </Content>
+    <PackageReference Include="ActualLab.Generators" PrivateAssets="all" />
+    <PackageReference Include="MemoryPack.Generator" PrivateAssets="all" />
   </ItemGroup>
 
 </Project>

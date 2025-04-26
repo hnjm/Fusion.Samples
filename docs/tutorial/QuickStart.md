@@ -2,8 +2,8 @@
 
 > This part is an attempt to introduce all key Fusion features
 > in a single document. If you find it doesn't do its
-> job well, please don't hesitate to reach AY on
-> our [Discord Server](https://discord.gg/EKEwv6d)
+> job well, please don't hesitate to reach Alex Y. on
+> [Fusion Place](https://actual.chat/chat/s-1KCdcYy9z2-uJVPKZsbEo)
 > and tell him *everything* 😈
 
 The content below implies you can browse, build, and run
@@ -742,10 +742,10 @@ reads/writes the DB:
    "Read-only" means this `DbContext` "throws" on attempt to call
    `SaveChangesAsync`.
 
-3. And another one is `CreateCommandDbContext`, which is used like this:
+3. And another one is `CreateOperationDbContext`, which is used like this:
    
    ```cs
-   await using var dbContext = await CreateCommandDbContext(cancellationToken);
+   await using var dbContext = await CreateOperationDbContext(cancellationToken);
    // ... code using dbContext
    ```
    
@@ -769,7 +769,7 @@ And that's it. So to use Fusion with EF, you must:
 - Make a couple extra calls during IoC container configuration
   to enable Operations Framework
 - Inherit your Compute Services from `DbServiceBase<TDbContext>`
-  and rely on its `CreateDbContext` / `CreateCommandDbContext`
+  and rely on its `CreateDbContext` / `CreateOperationDbContext`
   to get `DbContext`-s. Alternatively, you just see what these
   methods do and use the same code in Compute Services that
   can't be inherited from `DbServiceBase<TDbContext>`.

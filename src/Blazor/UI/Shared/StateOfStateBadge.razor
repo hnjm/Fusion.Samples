@@ -1,4 +1,3 @@
-@using ActualLab.Async;
 @implements IDisposable
 @*
     StateOfStateBadge:
@@ -14,9 +13,9 @@
     } else if (IsUpdating) {
         <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
         <b>Updating...</b>
-    } else if (IsUpdatePending) {
+    } else if (IsInvalidated) {
         <div class="spinner-grow spinner-grow-sm text-secondary" role="status"></div>
-        <b class="text-secondary">Update pending...</b>
+        <b class="text-secondary">Invalidated...</b>
     } else {
         <span class="oi oi-check" aria-hidden="true"></span>
         <b>In sync.</b>
@@ -24,28 +23,39 @@
 </Div>
 
 @code {
-    private readonly Action<IState, StateEventKind> _stateChangedHandler;
-    private IState _state = null!;
+    private readonly Action<State, StateEventKind> _stateOfStateChangedHandler;
+    private volatile StateSnapshot? _snapshot = null!;
 
+#pragma warning disable BL0007
     [Parameter]
-    public IState State {
-        get => _state;
+    public State? State {
+        get => _snapshot?.State;
         set {
-            if (_state == value)
+            var oldState = _snapshot?.State;
+            if (ReferenceEquals(oldState, value))
                 return;
-            _state?.RemoveEventHandler(StateEventKind.All, _stateChangedHandler);
-            _state = value;
-            _state?.AddEventHandler(StateEventKind.All, _stateChangedHandler);
+
+            _snapshot = null;
+            oldState?.RemoveEventHandler(StateEventKind.All, _stateOfStateChangedHandler);
+            value?.AddEventHandler(StateEventKind.All, _stateOfStateChangedHandler);
+            _snapshot = value?.Snapshot;
         }
     }
+#pragma warning restore BL0007
 
-    public bool IsLoading => State == null! || State.Snapshot.UpdateCount == 0;
-    public bool IsUpdating => State == null! || State.Snapshot.WhenUpdating().IsCompleted;
-    public bool IsUpdatePending => State == null! || State.Snapshot.Computed.IsInvalidated();
+    private bool IsLoading => _snapshot == null || _snapshot.UpdateCount == 0;
+    private bool IsUpdating => _snapshot is { } s && s.WhenUpdating().IsCompleted;
+    private bool IsInvalidated => _snapshot is { } s && s.Computed.IsInvalidated();
 
     public StateOfStateBadge()
-        => _stateChangedHandler = (_, _) => this.NotifyStateHasChanged();
+        => _stateOfStateChangedHandler = (_, _) => InvokeAsync(OnStateOfStateChanged);
 
     public virtual void Dispose()
         => State = null!;
+
+    private void OnStateOfStateChanged()
+    {
+        _snapshot = _snapshot?.State.Snapshot;
+        StateHasChanged();
+    }
 }

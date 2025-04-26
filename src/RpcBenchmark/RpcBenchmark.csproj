@@ -11,11 +11,14 @@
 
   <!-- Performance-related settings -->
   <PropertyGroup>
-    <ServerGarbageCollection>true</ServerGarbageCollection>
     <TieredCompilation>true</TieredCompilation>
     <TieredCompilationQuickJit>true</TieredCompilationQuickJit>
-    <TieredCompilationQuickJitForLoops>false</TieredCompilationQuickJitForLoops>
+    <TieredCompilationQuickJitForLoops>true</TieredCompilationQuickJitForLoops>
     <TieredPGO>true</TieredPGO>
+    <ServerGarbageCollection>true</ServerGarbageCollection>
+    <RetainVMGarbageCollection>true</RetainVMGarbageCollection>
+    <GarbageCollectionAdaptationMode>0</GarbageCollectionAdaptationMode>
+    <CETCompat>false</CETCompat>
   </PropertyGroup>
 
   <ItemGroup>
@@ -35,9 +38,9 @@
 
   <!-- Roslyn generators/analyzers -->
   <ItemGroup>
-    <PackageReference Include="ActualLab.Generators" />
-    <PackageReference Include="MemoryPack.Generator" />
-    <PackageReference Include="RestEase.SourceGenerator" />
+    <PackageReference Include="ActualLab.Generators" PrivateAssets="all" />
+    <PackageReference Include="MemoryPack.Generator" PrivateAssets="all" />
+    <PackageReference Include="RestEase.SourceGenerator" PrivateAssets="all" />
     <PackageReference Include="Ookii.CommandLine" />
   </ItemGroup>
 

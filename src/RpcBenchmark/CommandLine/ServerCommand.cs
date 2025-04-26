@@ -22,11 +22,10 @@ public partial class ServerCommand : BenchmarkCommandBase
     [Description("The URL to bind to.")]
     public string Url { get; set; } = DefaultUrl;
 
-    public override async Task<int> RunAsync()
+    public override async Task<int> RunAsync(CancellationToken cancellationToken = default)
     {
         Url = Url.NormalizeBaseUrl();
-        SystemSettings.Apply(MinWorkerThreads, MinIOThreads, ByteSerializer);
-        var cancellationToken = StopToken;
+        SystemSettings.Apply(MinWorkerThreads, MinIOThreads, SerializationFormat);
         WriteLine($"Starting server @ {Url}");
 
         var builder = WebApplication.CreateBuilder();

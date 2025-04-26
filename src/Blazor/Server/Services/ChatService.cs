@@ -1,4 +1,3 @@
-using ActualLab.DependencyInjection;
 using Newtonsoft.Json.Linq;
 using Samples.Blazor.Abstractions;
 using ActualLab.Fusion.Authentication;
@@ -29,7 +28,7 @@ public class ChatService(
         text = await NormalizeText(text, cancellationToken);
         var user = await auth.GetUser(session, cancellationToken).Require();
 
-        await using var dbContext = await DbHub.CreateCommandDbContext(cancellationToken);
+        await using var dbContext = await DbHub.CreateOperationDbContext(cancellationToken);
         var message = new ChatMessage() {
             CreatedAt = DateTime.UtcNow,
             UserId = user.Id,
@@ -76,7 +75,7 @@ public class ChatService(
         // Fetching users via GetUserAsync
         var userIds = messages.Select(m => m.UserId).Distinct().ToArray();
         var userTasks = userIds.Select(async id => {
-            var user = await authBackend.GetUser(default, id, cancellationToken);
+            var user = await authBackend.GetUser("", id, cancellationToken);
             return user.OrGuest("<Deleted user>").ToClientSideUser();
         });
         var users = (await Task.WhenAll(userTasks)).OfType<User>();
@@ -84,7 +83,7 @@ public class ChatService(
         // Composing the end result
         return new ChatMessageList() {
             Messages = [..messages],
-            Users = users.ToImmutableDictionary(u => u.Id.Value),
+            Users = users.ToImmutableDictionary(u => u.Id),
         };
     }
 
@@ -99,7 +98,8 @@ public class ChatService(
         var context = CommandContext.GetCurrent();
         await context.InvokeRemainingHandlers(cancellationToken);
         if (Invalidation.IsActive) {
-            var isNewUser = context.Operation.Items.GetOrDefault(false);
+            // Built-in AuthBackend_SignIn command handler sets this flag:
+            var isNewUser = context.Operation.Items.KeylessGet(false);
             if (isNewUser) {
                 _ = GetUserCount(default);
                 _ = GetActiveUserCount(default);

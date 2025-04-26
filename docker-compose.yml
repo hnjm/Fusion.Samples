@@ -111,3 +111,46 @@ services:
     build:
       context: .
       target: sample_rpc_benchmark
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  # The settings below are matching the settings from grpc_bench for 4 cpus:
+  # - https://github.com/LesnyRumcajs/grpc_bench
+  # - https://github.com/LesnyRumcajs/grpc_bench/discussions/441 (the most recent results I could find)
+  # 'SayHello' is the test that matches the grpc_bench payload.
+
+  sample_rpc_benchmark_server:
+    build:
+      context: .
+      target: sample_rpc_benchmark
+    command: server https://0.0.0.0:443/
+    expose:
+      - "443"
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+
+  sample_rpc_benchmark_calls:
+    build:
+      context: .
+      target: sample_rpc_benchmark
+    depends_on:
+      - sample_rpc_benchmark_server
+    command: client -b calls -w 1000 -cc 20 -n 4 https://sample_rpc_benchmark_server
+    deploy:
+      resources:
+        limits:
+          cpus: '24'
+
+  sample_rpc_benchmark_streams:
+    build:
+      context: .
+      target: sample_rpc_benchmark
+    depends_on:
+      - sample_rpc_benchmark_server
+    command: client -b streams -w 80 -cc 4 -n 4 -l rpc,grpc,signalr,jsonrpc https://sample_rpc_benchmark_server
+    deploy:
+      resources:
+        limits:
+          cpus: '24'

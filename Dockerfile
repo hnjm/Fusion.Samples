@@ -15,11 +15,12 @@ ENTRYPOINT ["sh", "start.sh"]
 
 # Samples
 
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 RUN apt update \
     && apt install -y --no-install-recommends python3 python3-pip libatomic1 \
     && rm -rf /var/lib/apt/lists/*
 RUN dotnet workload install wasm-tools aspire
+RUN dotnet dev-certs https
 WORKDIR /samples
 COPY ["src/", "src/"]
 COPY ["docs/", "docs/"]
@@ -31,57 +32,58 @@ RUN dotnet build -c:Release --no-restore
 # Create HelloWorld sample image
 FROM build AS sample_hello_world
 WORKDIR /samples/src/HelloWorld
-ENTRYPOINT ["dotnet", "bin/Debug/net8.0/Samples.HelloWorld.dll"]
+ENTRYPOINT ["dotnet", "bin/Debug/net9.0/Samples.HelloWorld.dll"]
 
 # Create HelloCart sample image
 FROM build AS sample_hello_cart
 WORKDIR /samples/src/HelloCart
-ENTRYPOINT ["dotnet", "bin/Debug/net8.0/Samples.HelloCart.dll"]
+ENTRYPOINT ["dotnet", "bin/Debug/net9.0/Samples.HelloCart.dll"]
 
 # Create HelloBlazorServer sample image
 FROM build AS sample_hello_blazor_server
 WORKDIR /samples/src/HelloBlazorServer
-ENTRYPOINT ["dotnet", "bin/Debug/net8.0/Samples.HelloBlazorServer.dll"]
+ENTRYPOINT ["dotnet", "bin/Debug/net9.0/Samples.HelloBlazorServer.dll"]
 
 # Create HelloBlazorHybrid sample image
 FROM build AS sample_hello_blazor_hybrid
 WORKDIR /samples/src/HelloBlazorHybrid/Server
-ENTRYPOINT ["dotnet", "bin/Debug/net8.0/Samples.HelloBlazorHybrid.Server.dll"]
+ENTRYPOINT ["dotnet", "bin/Debug/net9.0/Samples.HelloBlazorHybrid.Server.dll"]
 
 # Create Blazor sample image
 FROM build AS sample_blazor
 WORKDIR /samples/src/Blazor/Server
-ENTRYPOINT ["dotnet", "bin/Debug/net8.0/Samples.Blazor.Server.dll"]
+ENTRYPOINT ["dotnet", "bin/Debug/net9.0/Samples.Blazor.Server.dll"]
 
 # Create TodoApp sample image
 FROM build AS sample_todoapp
 WORKDIR /samples/src/TodoApp/Host
-ENTRYPOINT ["dotnet", "bin/Debug/net8.0/Samples.TodoApp.Host.dll"]
+ENTRYPOINT ["dotnet", "bin/Debug/net9.0/Samples.TodoApp.Host.dll"]
 
 # Create MiniRpc sample image
 FROM build AS sample_mini_rpc
 WORKDIR /samples/src/MiniRpc
-ENTRYPOINT ["dotnet", "bin/Release/net8.0/Samples.MiniRpc.dll"]
+ENTRYPOINT ["dotnet", "bin/Release/net9.0/Samples.MiniRpc.dll"]
 
 # Create MultiServerRpc sample image
 FROM build AS sample_multi_server_rpc
 WORKDIR /samples/src/MultiServerRpc
-ENTRYPOINT ["dotnet", "bin/Release/net8.0/Samples.MultiServerRpc.dll"]
+ENTRYPOINT ["dotnet", "bin/Release/net9.0/Samples.MultiServerRpc.dll"]
 
 # Create MeshRpc sample image
 FROM build AS sample_mesh_rpc
 WORKDIR /samples/src/MeshRpc
-ENTRYPOINT ["dotnet", "bin/Release/net8.0/Samples.MeshRpc.dll"]
+ENTRYPOINT ["dotnet", "bin/Release/net9.0/Samples.MeshRpc.dll"]
 
 # Create Benchmark sample image
 FROM build AS sample_benchmark
 WORKDIR /samples/src/Benchmark
-ENTRYPOINT ["dotnet", "bin/Release/net8.0/Samples.Benchmark.dll"]
+ENV DbHost=host.docker.internal
+ENTRYPOINT ["dotnet", "bin/Release/net9.0/Samples.Benchmark.dll"]
 
 # Create RpcBenchmark sample image
 FROM build AS sample_rpc_benchmark
 WORKDIR /samples/src/RpcBenchmark
-ENTRYPOINT ["dotnet", "bin/Release/net8.0/Samples.RpcBenchmark.dll"]
+ENTRYPOINT ["dotnet", "bin/Release/net9.0/Samples.RpcBenchmark.dll"]
 
 # Websites
 
@@ -89,7 +91,7 @@ FROM build AS publish
 WORKDIR /samples
 RUN dotnet publish -c:Release --no-build --no-restore src/Blazor/Server/Server.csproj
 
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS runtime
 ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=true
 WORKDIR /samples
 COPY --from=publish /samples .
@@ -100,4 +102,4 @@ WORKDIR /samples/src/Blazor/Server
 ENV Logging__Console__FormatterName=
 ENV Server__GitHubClientId=7d519556dd8207a36355
 ENV Server__GitHubClientSecret=8e161ca4799b7e76e1c25429728db6b2430f2057
-ENTRYPOINT ["dotnet", "bin/Release/net8.0/publish/Samples.Blazor.Server.dll"]
+ENTRYPOINT ["dotnet", "bin/Release/net9.0/publish/Samples.Blazor.Server.dll"]
